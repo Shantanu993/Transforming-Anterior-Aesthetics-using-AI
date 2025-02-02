@@ -12,7 +12,6 @@ This application helps identify the suitable composite shades (A1, A2, A3) for a
 
 # File uploader for composite shades in a row (inside sidebar)
 st.sidebar.write("### Upload Composite Shade Images:")
-st.sidebar.write("Upload images for A1, A2, and A3 composite shades:")
 
 # Using columns to align the file upload buttons vertically
 a1_image = st.sidebar.file_uploader("Upload A1", type=["png", "jpg", "jpeg"], key="a1")
@@ -20,12 +19,20 @@ a2_image = st.sidebar.file_uploader("Upload A2", type=["png", "jpg", "jpeg"], ke
 a3_image = st.sidebar.file_uploader("Upload A3", type=["png", "jpg", "jpeg"], key="a3")
 
 # Displaying the uploaded images if provided
-if a1_image:
-    st.sidebar.image(a1_image, caption="A1", width=100)
-if a2_image:
-    st.sidebar.image(a2_image, caption="A2", width=100)
-if a3_image:
-    st.sidebar.image(a3_image, caption="A3", width=100)
+col1, col2, col3 = st.sidebar.columns([1, 1, 1])  # Adjust column widths
+
+# Setting consistent width for the images and upload buttons
+image_width = 100  # Width of the uploaded images in the sidebar
+
+with col1:
+    if a1_image:
+        st.image(a1_image, caption="A1", width=image_width)
+with col2:
+    if a2_image:
+        st.image(a2_image, caption="A2", width=image_width)
+with col3:
+    if a3_image:
+        st.image(a3_image, caption="A3", width=image_width)
 
 if not (a1_image and a2_image and a3_image):
     st.sidebar.warning("Please upload all three composite shade images (A1, A2, A3).")
@@ -66,7 +73,7 @@ if tooth_image:
     st.write("### Suggested Composite Shade Proportions for:", tooth_selected)
     st.markdown(
         f"""
-        <div style="border: 2px solid #4CAF50; padding: 10px; border-radius: 10px; background-color:rgba(249, 249, 249, 0); text-align: center;">
+        <div style="border: 2px solid #4CAF50; padding: 10px; border-radius: 10px; background-color:rgba(12, 0, 0, 0.46); width:auto;">
             <p style="font-size: 18px;"><strong>A1 Shade:</strong> {a1_percentage}%</p>
             <p style="font-size: 18px;"><strong>A2 Shade:</strong> {a2_percentage}%</p>
             <p style="font-size: 18px;"><strong>A3 Shade:</strong> {a3_percentage}%</p>
