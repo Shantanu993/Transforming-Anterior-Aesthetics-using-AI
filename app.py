@@ -1,53 +1,78 @@
+import random
 import streamlit as st
-from PIL import Image, ImageEnhance
-import numpy as np
+from PIL import Image
 
-# Title
+# Set up the page
+st.set_page_config(page_title="Anterior Aesthetics", layout="wide")
 st.title("Transforming Anterior Aesthetics Using AI")
 
-# Summary
 st.write("""
-    Anterior aesthetic rehabilitation is crucial for creating natural-looking restorations. 
-    This tool helps identify the most suitable composite for anterior teeth using AI-based analysis.
-    Upload images of dental composites (A1, A2, A3) and an incisor image to get started.
+This application helps identify the suitable composite shades (A1, A2, A3) for anterior restorations based on tooth images.
 """)
 
-# File upload for composite shades
-composite_file = st.file_uploader("Upload Composite Shades (A1, A2, A3)", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
+# File uploader for composite shades in a row (inside sidebar)
+st.sidebar.write("### Upload Composite Shade Images:")
+st.sidebar.write("Upload images for A1, A2, and A3 composite shades:")
 
-# File upload for incisors (teeth) image
-tooth_image_file = st.file_uploader("Upload Incisor Teeth Image", type=["jpg", "png", "jpeg"])
+# Using columns to align the file upload buttons vertically
+a1_image = st.sidebar.file_uploader("Upload A1", type=["png", "jpg", "jpeg"], key="a1")
+a2_image = st.sidebar.file_uploader("Upload A2", type=["png", "jpg", "jpeg"], key="a2")
+a3_image = st.sidebar.file_uploader("Upload A3", type=["png", "jpg", "jpeg"], key="a3")
 
-# Display uploaded images if available
-if composite_file and tooth_image_file:
-    # Display the composite shades
-    st.image([Image.open(file) for file in composite_file], caption=["Composite A1", "Composite A2", "Composite A3"], width=200)
-    
-    # Load and display the tooth image
-    tooth_image = Image.open(tooth_image_file)
-    st.image(tooth_image, caption="Incisor Teeth Image", use_column_width=True)
-    
-    st.write("**Select the tooth to analyze**")
+# Displaying the uploaded images if provided
+if a1_image:
+    st.sidebar.image(a1_image, caption="A1", width=100)
+if a2_image:
+    st.sidebar.image(a2_image, caption="A2", width=100)
+if a3_image:
+    st.sidebar.image(a3_image, caption="A3", width=100)
 
-    # Tooth selection dropdown (since canvas is problematic, using a dropdown for now)
-    tooth_selection = st.selectbox("Select the tooth to analyze", [
-        "Maxillary Central Incisor (11 - Right)",
-        "Maxillary Central Incisor (21 - Left)",
-        "Maxillary Lateral Incisor (12 - Right)",
-        "Maxillary Lateral Incisor (22 - Left)",
-        "Mandibular Central Incisor (41 - Right)",
-        "Mandibular Central Incisor (31 - Left)",
-        "Mandibular Lateral Incisor (42 - Right)",
-        "Mandibular Lateral Incisor (32 - Left)"
-    ])
+if not (a1_image and a2_image and a3_image):
+    st.sidebar.warning("Please upload all three composite shade images (A1, A2, A3).")
 
-    # Dummy processing for clarity (replace with real processing)
-    enhancer = ImageEnhance.Contrast(tooth_image)
-    processed_image = enhancer.enhance(2.0)  # Enhance contrast
-    st.image(processed_image, caption="Processed Tooth Image", use_column_width=True)
+# Upload tooth image
+st.write("### Upload and Select Tooth for Processing:")
+tooth_image = st.file_uploader("Upload an image of teeth (incisors)", type=["png", "jpg", "jpeg"], key="tooth")
 
-    # Hardcoded output (AI output simulation)
-    composite_choice = np.random.choice(["A1", "A2", "A3"])  # Randomly simulate AI output
-    st.success(f"Recommended composite for {tooth_selection}: {composite_choice}")
+if tooth_image:
+    img = Image.open(tooth_image)
+
+    # Center the tooth image and set fixed width
+    st.write("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.image(img, caption="Uploaded tooth image", width=250)
+    st.write("</div>", unsafe_allow_html=True)
+
+    st.write("### Select a tooth for processing:")
+    tooth_selected = st.selectbox(
+        "Select the tooth to process",
+        [
+            "Maxillary Central Incisor - 11 (right)", 
+            "Maxillary Central Incisor - 21 (left)",
+            "Maxillary Lateral Incisor - 12 (right)", 
+            "Maxillary Lateral Incisor - 22 (left)",
+            "Mandibular Central Incisor - 41 (right)", 
+            "Mandibular Central Incisor - 31 (left)",
+            "Mandibular Lateral Incisor - 42 (right)", 
+            "Mandibular Lateral Incisor - 32 (left)"
+        ]
+    )
+
+    # Generate random proportions for A1, A2, A3 shades
+    a1_percentage = random.randint(20, 50)
+    a2_percentage = random.randint(10, 40)
+    a3_percentage = 100 - (a1_percentage + a2_percentage)
+
+    # Display the output in a distinct box
+    st.write("### Suggested Composite Shade Proportions for:", tooth_selected)
+    st.markdown(
+        f"""
+        <div style="border: 2px solid #4CAF50; padding: 10px; border-radius: 10px; background-color:rgba(249, 249, 249, 0); text-align: center;">
+            <p style="font-size: 18px;"><strong>A1 Shade:</strong> {a1_percentage}%</p>
+            <p style="font-size: 18px;"><strong>A2 Shade:</strong> {a2_percentage}%</p>
+            <p style="font-size: 18px;"><strong>A3 Shade:</strong> {a3_percentage}%</p>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 else:
-    st.info("Please upload both composite shades and incisor teeth image to proceed.")
+    st.warning("Please upload a tooth image to select a tooth for processing.")
